@@ -1,0 +1,138 @@
+/* Next-Generation Pool Controller Dashboard Theme */
+
+/* Import base modern styles */
+@import '../modern.css';
+@import '../modern-widgets.css';
+
+/* Next theme specific enhancements */
+:root {
+  /* Next theme color palette */
+  --next-primary: #2563eb;
+  --next-secondary: #64748b;
+  --next-accent: #0ea5e9;
+  
+  /* Override default colors for next theme */
+  --primary-color: var(--next-primary);
+  --secondary-color: var(--next-secondary);
+  --info-color: var(--next-accent);
+}
+
+/* Next theme body class for conditional styling */
+body.theme-next {
+  /* Enable modern styling when next theme is active */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Enhance the dashboard app structure for next theme */
+body.theme-next .dashOuter {
+  /* Apply modern grid layout */
+  display: grid;
+  grid-template-areas: 
+    "header"
+    "main"
+    "config";
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-md);
+  gap: var(--spacing-lg);
+}
+
+/* Transform dashboard container to modern grid */
+body.theme-next .dashContainer {
+  grid-area: main;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--spacing-lg);
+  align-items: start;
+}
+
+/* Modern header styling */
+body.theme-next .picHeader {
+  grid-area: header;
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+}
+
+/* Enhanced config container */
+body.theme-next .configContainer {
+  grid-area: config;
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-lg);
+}
+
+/* Modern panel styling */
+body.theme-next .control-panel {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  transition: all 0.2s ease;
+  min-height: 200px;
+}
+
+body.theme-next .control-panel:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Theme transition animations */
+body.theme-next * {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Next theme indicator */
+body.theme-next::before {
+  content: "Next-Gen UI";
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: var(--primary-color);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  z-index: 1000;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* Enhanced responsive behavior for next theme */
+@media (max-width: 768px) {
+  body.theme-next .dashOuter {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-md);
+  }
+  
+  body.theme-next .dashContainer {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  body.theme-next .control-panel {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  body.theme-next .dashOuter {
+    padding: var(--spacing-xs);
+    gap: var(--spacing-sm);
+  }
+  
+  body.theme-next .dashContainer {
+    gap: var(--spacing-sm);
+  }
+  
+  body.theme-next .control-panel {
+    padding: var(--spacing-sm);
+  }
+}

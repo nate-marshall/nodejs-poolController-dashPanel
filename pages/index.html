@@ -1,9 +1,10 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Pool Controller Dashboard - Monitor and control your pool equipment">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pool Control Dashboard</title>
     <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/icons/apple-icon-60x60.png">
@@ -21,210 +22,99 @@
     <link rel="manifest" href="/icons/manifest.json">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png">
-    <!-- Core Dependencies -->
-    <script src="socket.io-client/socket.io.js"></script>
-    <script src="jquery/dist/jquery.js"></script>
-    <script src="jquery-ui/jquery-ui.js"></script>
-    <script src="jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
-    <!-- Application Scripts -->
-    <script src="scripts/widgets.js"></script>
-    <script src="scripts/controller.js"></script>
-    <script src="scripts/dashboard.js"></script>
-    <script src="scripts/bodies.js"></script>
-    <script src="scripts/circuits.js"></script>
-    <script src="scripts/pumps.js"></script>
-    <script src="scripts/chemistry.js"></script>
-    <script src="scripts/lightGroups.js"></script>
-    <script src="scripts/schedules.js"></script>
-    <script src="scripts/configPage.js"></script>
+    <script type="text/javascript" src="socket.io-client/socket.io.js"></script>
+    <script type="text/javascript" src="jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="jquery-ui/jquery-ui.js"></script>
+    <script type="text/javascript" src="jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript" src="scripts/widgets.js"></script>
+    <script type="text/javascript" src="scripts/controller.js"></script>
+    <script type="text/javascript" src="scripts/dashboard.js"></script>
+    <script type="text/javascript" src="scripts/bodies.js"></script>
+    <script type="text/javascript" src="scripts/circuits.js"></script>
+    <script type="text/javascript" src="scripts/pumps.js"></script>
+    <script type="text/javascript" src="scripts/chemistry.js"></script>
+    <script type="text/javascript" src="scripts/lightGroups.js"></script>
+    <script type="text/javascript" src="scripts/schedules.js"></script>
+    <script type="text/javascript" src="scripts/configPage.js"></script>
+    <script type="text/javascript" src="scripts/config/controller.js"></script>
+    <script type="text/javascript" src="scripts/config/general.js"></script>
+    <script type="text/javascript" src="scripts/config/bodies.js"></script>
+    <script type="text/javascript" src="scripts/config/circuits.js"></script>
+    <script type="text/javascript" src="scripts/config/pumps.js"></script>
+    <script type="text/javascript" src="scripts/config/valves.js"></script>
+    <script type="text/javascript" src="scripts/config/schedules.js"></script>
+    <script type="text/javascript" src="scripts/config/heaters.js"></script>
+    <script type="text/javascript" src="scripts/config/chemistry.js"></script>
+    <script type="text/javascript" src="scripts/config/controller.js"></script>
+    <script type="text/javascript" src="scripts/uploader.js"></script>
+    <link rel="stylesheet" type="text/css" href="jquery-ui/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="jquery-ui/jquery-ui.theme.css" />
+    <link id="cssref_glyphs" rel="stylesheet" type="text/css" href="font-awesome/css/all.css" />
+
+
+    <link id="cssref_intellibrite" rel="stylesheet" type="text/css" href="themes/intellibrite.css" />
+    <link id="cssref_widgets" rel="stylesheet" type="text/css" href="themes/widgets.css" />
+    <link id="cssref_config" rel="stylesheet" type="text/css" href="themes/configPage.css" />
+    <link id="cssref_dash" rel="stylesheet" type="text/css" href="themes/dashboard.css" />
     
-    <!-- Configuration Scripts -->
-    <script src="scripts/config/controller.js"></script>
-    <script src="scripts/config/general.js"></script>
-    <script src="scripts/config/bodies.js"></script>
-    <script src="scripts/config/circuits.js"></script>
-    <script src="scripts/config/pumps.js"></script>
-    <script src="scripts/config/valves.js"></script>
-    <script src="scripts/config/schedules.js"></script>
-    <script src="scripts/config/heaters.js"></script>
-    <script src="scripts/config/chemistry.js"></script>
-    <script src="scripts/uploader.js"></script>
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="jquery-ui/jquery-ui.css">
-    <link rel="stylesheet" href="jquery-ui/jquery-ui.theme.css">
-    <link id="cssref_glyphs" rel="stylesheet" href="font-awesome/css/all.css">
+    <!-- Next Theme Enhancement Script -->
+    <script type="text/javascript" src="themes/next/next-theme.js"></script>
     
-    <!-- Theme Stylesheets -->
-    <link id="cssref_modern" rel="stylesheet" href="themes/modern.css">
-    <link id="cssref_modern_widgets" rel="stylesheet" href="themes/modern-widgets.css">
-    <link id="cssref_intellibrite" rel="stylesheet" href="themes/intellibrite.css">
-    <link id="cssref_widgets" rel="stylesheet" href="themes/widgets.css">
-    <link id="cssref_config" rel="stylesheet" href="themes/configPage.css">
-    <link id="cssref_dash" rel="stylesheet" href="themes/dashboard.css">
-    <script>
-        // Modern dashboard initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            const dashboard = {
-                init() {
-                    this.setupTheme();
-                    this.setupBackground();
-                    this.setupAccessibility();
-                },
-                
-                setupTheme() {
-                    const theme = this.getStorage('dashTheme', 'default');
-                    const link = document.createElement('link');
-                    link.id = 'cssref_theme';
-                    link.rel = 'stylesheet';
-                    link.href = `themes/${theme}/theme.css`;
-                    link.setAttribute('data-theme', theme);
-                    document.head.appendChild(link);
-                },
-                
-                setupBackground() {
-                    const background = this.getStorage('dashBackground', '');
-                    if (background) {
-                        document.body.style.backgroundImage = `url(${background})`;
-                    }
-                },
-                
-                setupAccessibility() {
-                    // Add keyboard navigation support
-                    document.addEventListener('keydown', (e) => {
-                        if (e.key === 'Tab') {
-                            document.body.classList.add('keyboard-navigation');
-                        }
-                    });
-                    
-                    document.addEventListener('mousedown', () => {
-                        document.body.classList.remove('keyboard-navigation');
-                    });
-                },
-                
-                getStorage(key, defaultValue) {
-                    try {
-                        const value = localStorage.getItem(key);
-                        return value !== null ? value : defaultValue;
-                    } catch (e) {
-                        console.warn('localStorage not available:', e);
-                        return defaultValue;
-                    }
-                }
-            };
-            
-            dashboard.init();
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Add in the current theme for the pool controller.
+            var background = getStorage('dashBackground', '');
+            if (typeof background !== 'undefined' && background !== '')
+                $(document.body).css('background-image', `url(${background})`);
+            else
+                $(document.body).css('background-image', '');
+            var theme = getStorage('dashTheme', 'default');
+            $('<link id="cssref_theme" rel="stylesheet" type="text/css" href="themes/' + theme + '/theme.css" />').appendTo($('head')).attr('data-theme', theme);
+            var bstyle = getStorage('dashBackgroundStyle', '');
         });
     </script>
 </head>
 
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    <div class="dashboard-app picDashboard" data-panel="dashboard">
-        <header class="dashboard-header picHeader">
-            <section class="controller-panel picController picControlPanel control-panel"></section>
+    <div class="dashOuter picDashboard" data-panel="dashboard">
+        <header class="picHeader">
+            <div class="picController picControlPanel control-panel" style="display:block;"></div>
         </header>
-        
-        <main id="main-content" class="dashboard-main dashContainer">
-            <div class="dashboard-grid container1">
-                <section class="panel bodies-panel picBodies picControlPanel control-panel" aria-label="Pool Bodies">
-                    <h2 class="visually-hidden">Pool Bodies</h2>
-                </section>
-                
-                <section class="panel chemistry-panel picChemistry picControlPanel control-panel" aria-label="Chemistry Control">
-                    <h2 class="visually-hidden">Chemistry Control</h2>
-                </section>
-                
-                <section class="panel pumps-panel picPumps picControlPanel picPumpContainer control-panel" aria-label="Pump Control">
-                    <h2 class="visually-hidden">Pump Control</h2>
-                </section>
-                
-                <section class="panel schedules-panel picSchedules picControlPanel picScheduleContainer control-panel" aria-label="Schedules">
-                    <h2 class="visually-hidden">Schedules</h2>
-                </section>
-                
-                <section class="panel circuits-panel picCircuits picControlPanel control-panel" aria-label="Circuit Control">
-                    <h2 class="visually-hidden">Circuit Control</h2>
-                </section>
-                
-                <section class="panel lights-panel picLights picControlPanel control-panel" aria-label="Light Control">
-                    <h2 class="visually-hidden">Light Control</h2>
-                </section>
-                
-                <section class="panel filters-panel picFilters picControlPanel control-panel" aria-label="Filter Control">
-                    <h2 class="visually-hidden">Filter Control</h2>
-                </section>
-                
-                <section class="panel virtual-circuits-panel picVirtualCircuits picControlPanel control-panel" aria-label="Virtual Circuits">
-                    <h2 class="visually-hidden">Virtual Circuits</h2>
-                </section>
+        <div class="dashContainer">
+            <div class="container1">
+                <div class="picBodies picControlPanel control-panel"></div>
+                <div class="picChemistry picControlPanel control-panel"></div>
+                <div class="picPumps picControlPanel picPumpContainer control-panel"></div>
+                <div class="picSchedules picControlPanel picScheduleContainer control-panel"></div>
+                <div class="picCircuits picControlPanel control-panel"></div>
+                <div class="picLights picControlPanel control-panel"></div>
+                <div class="picFilters picControlPanel control-panel"></div>
+                <div class="picVirtualCircuits picControlPanel control-panel"></div>
             </div>
-            
-            <div class="dashboard-secondary container2"></div>
-            <div class="dashboard-tertiary container3"></div>
-        </main>
-        
-        <aside class="config-container configContainer" aria-label="Configuration Panel">
-        </aside>
+            <div class="container2"></div>
+            <div class="container3"></div>
+
+        </div>
+        <div class="configContainer">
+        </div>
     </div>
 
-    <script>
-        // Enhanced widget initialization with modern JavaScript
-        $(document).ready(() => {
-            const widgetInitializer = {
-                widgets: [
-                    { selector: 'div.picDashboard', method: 'dashboard' },
-                    { selector: 'div.picController', method: 'controller' },
-                    { selector: 'div.picBodies', method: 'bodies' },
-                    { selector: 'div.picCircuits', method: 'circuits' },
-                    { selector: 'div.picLights', method: 'lights' },
-                    { selector: 'div.picPumps', method: 'pumps' },
-                    { selector: 'div.picChemistry', method: 'chemistry' },
-                    { selector: 'div.picSchedules', method: 'schedules' },
-                    { selector: 'div.picFilters', method: 'bodyFilters' }
-                ],
-                
-                init() {
-                    this.initializeWidgets();
-                    this.setupErrorHandling();
-                    this.setupPerformanceMonitoring();
-                },
-                
-                initializeWidgets() {
-                    this.widgets.forEach(({ selector, method }) => {
-                        try {
-                            const $element = $(selector);
-                            if ($element.length && typeof $element[method] === 'function') {
-                                $element[method]();
-                                console.log(`Initialized ${method} widget`);
-                            }
-                        } catch (error) {
-                            console.error(`Failed to initialize ${method} widget:`, error);
-                        }
-                    });
-                },
-                
-                setupErrorHandling() {
-                    window.addEventListener('error', (event) => {
-                        console.error('Global error:', event.error);
-                    });
-                    
-                    window.addEventListener('unhandledrejection', (event) => {
-                        console.error('Unhandled promise rejection:', event.reason);
-                    });
-                },
-                
-                setupPerformanceMonitoring() {
-                    if ('performance' in window) {
-                        setTimeout(() => {
-                            const timing = performance.timing;
-                            const loadTime = timing.loadEventEnd - timing.navigationStart;
-                            console.log(`Page load time: ${loadTime}ms`);
-                        }, 0);
-                    }
-                }
-            };
-            
-            widgetInitializer.init();
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var background = getStorage('dashBackground', '');
+            if (typeof background !== 'undefined' && background !== '')
+                $(document.body).css('background-image', `url(${background})`);
+            else
+                $(document.body).css('background-image', '');
+            $('div.picDashboard').dashboard();
+            $('div.picController').controller();
+            $('div.picBodies').bodies();
+            $('div.picCircuits').circuits();
+            $('div.picLights').lights();
+            $('div.picPumps').pumps();
+            $('div.picChemistry').chemistry();
+            $('div.picSchedules').schedules();
+            $('div.picFilters').bodyFilters();
         });
     </script>
 </body>

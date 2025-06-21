@@ -1,0 +1,215 @@
+/* Next Theme Widget Enhancements */
+
+/* Import modern widget styles when next theme is active */
+body.theme-next {
+  /* Apply modern-widgets.css styles conditionally */
+}
+
+/* Widget enhancements specific to next theme */
+body.theme-next .picFeatureGrid {
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+body.theme-next .picFeature,
+body.theme-next .picVirtualCircuit,
+body.theme-next .picCircuit {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+body.theme-next .picFeature:hover,
+body.theme-next .picVirtualCircuit:hover,
+body.theme-next .picCircuit:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+/* Enhanced button styling for next theme */
+body.theme-next .picActionButton,
+body.theme-next .picOptionButton {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+body.theme-next .picActionButton:hover,
+body.theme-next .picOptionButton:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Modern form controls for next theme */
+body.theme-next input[type="text"],
+body.theme-next input[type="number"],
+body.theme-next select,
+body.theme-next textarea {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+body.theme-next input[type="text"]:focus,
+body.theme-next input[type="number"]:focus,
+body.theme-next select:focus,
+body.theme-next textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+}
+
+/* Enhanced dropdown styling for next theme */
+body.theme-next .picPickList-value {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm) var(--spacing-md);
+  min-width: 150px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+body.theme-next .picPickList-value:hover {
+  border-color: var(--primary-color);
+}
+
+/* Temperature display enhancements for next theme */
+body.theme-next .picBodyTemp {
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+body.theme-next .picBodyTemp > div:nth-child(2) {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-shadow: 0 2px 4px var(--shadow-color);
+  margin: var(--spacing-sm) 0;
+}
+
+/* Status indicators for next theme */
+body.theme-next .status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: calc(var(--border-radius) / 2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+body.theme-next .status-badge.online {
+  background: rgb(16 185 129 / 0.15);
+  color: var(--success-color);
+}
+
+body.theme-next .status-badge.offline {
+  background: rgb(239 68 68 / 0.15);
+  color: var(--error-color);
+}
+
+body.theme-next .status-badge.warning {
+  background: rgb(245 158 11 / 0.15);
+  color: var(--warning-color);
+}
+
+/* Circuit status styling for next theme */
+body.theme-next .picCircuit[data-isOn="true"] {
+  background: linear-gradient(135deg, var(--success-color) 0%, var(--next-green-600) 100%);
+  color: white;
+  border-color: var(--success-color);
+}
+
+body.theme-next .picCircuit[data-isOn="false"] {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+/* Tab styling for next theme */
+body.theme-next .picTab {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-right: var(--spacing-xs);
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+body.theme-next .picTab:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body.theme-next .picTabSelected {
+  background: var(--bg-primary);
+  color: var(--primary-color);
+  border-bottom-color: var(--bg-primary);
+  font-weight: 600;
+}
+
+body.theme-next .picTabContents {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
+  padding: var(--spacing-md);
+}
+
+/* Loading animations for next theme */
+@keyframes next-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+body.theme-next .loading .picFeature,
+body.theme-next .loading .picCircuit,
+body.theme-next .loading .picActionButton {
+  animation: next-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Configuration icon enhancements for next theme */
+body.theme-next .picConfigIcon {
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius);
+}
+
+body.theme-next .picConfigIcon:hover {
+  color: var(--primary-color) !important;
+  background: var(--bg-secondary);
+  transform: scale(1.1);
+}
+
+body.theme-next .picConfigIcon i {
+  font-size: 1.2rem;
+}

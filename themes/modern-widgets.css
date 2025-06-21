@@ -1,0 +1,350 @@
+/* Modern Widget Enhancements */
+
+/* Enhanced panel ordering and layout */
+:root {
+  --panel-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Panel title styling */
+.control-panel-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.control-panel-title::before {
+  content: '';
+  width: 4px;
+  height: 1.2rem;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+/* Modern tab styling */
+.picTab {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-right: var(--spacing-xs);
+  transition: var(--panel-transition);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.picTab:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.picTabSelected {
+  background: var(--bg-primary);
+  color: var(--primary-color);
+  border-bottom-color: var(--bg-primary);
+  font-weight: 600;
+}
+
+.picTabContents {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
+  padding: var(--spacing-md);
+}
+
+/* Enhanced feature grid */
+.picFeatureGrid {
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.picFeature,
+.picVirtualCircuit,
+.picCircuit {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  transition: var(--panel-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.picFeature:hover,
+.picVirtualCircuit:hover,
+.picCircuit:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+/* Status indicators for circuits */
+.picCircuit[data-isOn=\"true\"] {
+  background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+  color: white;
+  border-color: var(--success-color);
+}
+
+.picCircuit[data-isOn=\"false\"] {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+/* Modern button styling */
+.picActionButton,
+.picOptionButton {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: var(--panel-transition);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.picActionButton:hover,
+.picOptionButton:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.picActionButton:active,
+.picOptionButton:active {
+  transform: translateY(0);
+}
+
+/* Enhanced dropdown styling */
+.picPickList {
+  position: relative;
+  display: inline-block;
+}
+
+.picPickList-value {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm) var(--spacing-md);
+  min-width: 150px;
+  cursor: pointer;
+  transition: var(--panel-transition);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.picPickList-value:hover {
+  border-color: var(--primary-color);
+}
+
+.picPickList-drop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.picPickList-item {
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  transition: var(--panel-transition);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.picPickList-item:hover {
+  background: var(--bg-secondary);
+}
+
+.picPickList-item:last-child {
+  border-bottom: none;
+}
+
+/* Temperature display enhancements */
+.picBodyTemp {
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.picBodyTemp > div:nth-child(2) {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+  margin: var(--spacing-sm) 0;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: calc(var(--border-radius) / 2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.online {
+  background: rgb(16 185 129 / 0.15);
+  color: var(--success-color);
+}
+
+.status-badge.offline {
+  background: rgb(239 68 68 / 0.15);
+  color: var(--error-color);
+}
+
+.status-badge.warning {
+  background: rgb(245 158 11 / 0.15);
+  color: var(--warning-color);
+}
+
+/* Pump panel enhancements */
+.picPump {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.picPump-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.picPump-status {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Chemistry panel enhancements */
+.picChemistry-reading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-sm);
+}
+
+.picChemistry-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.picChemistry-unit {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-left: var(--spacing-xs);
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading .picFeature,
+.loading .picCircuit,
+.loading .picActionButton {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .picFeatureGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-sm);
+  }
+  
+  .picFeature,
+  .picCircuit {
+    padding: var(--spacing-sm);
+  }
+  
+  .picBodyTemp > div:nth-child(2) {
+    font-size: 2rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .picCircuit,
+  .picFeature,
+  .picActionButton {
+    border-width: 2px;
+  }
+  
+  .picCircuit[data-isOn=\"true\"] {
+    border-color: #000;
+  }
+}
+
+/* Improved focus styles for keyboard navigation */
+.picActionButton:focus,
+.picOptionButton:focus,
+.picPickList-value:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Popover enhancements */
+.picPopoverBody {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-lg);
+  max-width: 300px;
+}
+
+.picPopoverBody::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid var(--border-color);
+}
+
+.picPopoverBody::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 21px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--bg-primary);
+}

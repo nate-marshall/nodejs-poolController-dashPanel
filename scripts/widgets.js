@@ -936,9 +936,20 @@ $.ui.position.fieldTip = {
         _initActionButton: function () {
             var self = this, o = self.options, el = self.element;
             if (typeof o.id !== 'undefined') el.attr('id', o.id);
+            
+            // Add ARIA attributes for accessibility
+            el.attr('role', 'button');
+            el.attr('tabindex', '0');
+            if (o.ariaLabel) el.attr('aria-label', o.ariaLabel);
+            if (o.ariaDescribedBy) el.attr('aria-describedby', o.ariaDescribedBy);
+            
             let icon = $('<span class="picButtonIcon"></span>');
             let text = $('<span class="picButtonText"></span>');
-            if (o.showLabel === false) text.hide();
+            if (o.showLabel === false) {
+                text.hide();
+                // If no visible label, ensure aria-label is present
+                if (!o.ariaLabel && o.text) el.attr('aria-label', o.text);
+            }
             icon.appendTo(el);
             text.appendTo(el);
             if (o.icon) icon.html(o.icon);
@@ -949,6 +960,17 @@ $.ui.position.fieldTip = {
             if (o.bind) el.attr('data-bind', o.bind);
             el[0].buttonIcon = function (val) { return self.buttonIcon(val); };
             el[0].disabled = function (val) { return self.disabled(val); };
+            
+            // Add keyboard event handlers
+            el.on('keydown', function (evt) {
+                if (evt.which === 13 || evt.which === 32) { // Enter or Space
+                    evt.preventDefault();
+                    if (!el.hasClass('disabled')) {
+                        el.trigger('click');
+                    }
+                }
+            });
+            
             if (typeof o.style === 'object') el.css(o.style);
         },
         buttonText: function (val) {
@@ -964,8 +986,15 @@ $.ui.position.fieldTip = {
             if (typeof val === 'undefined')
                 return el.hasClass('disabled');
             else {
-                if (val) el.addClass('disabled');
-                else el.removeClass('disabled');
+                if (val) {
+                    el.addClass('disabled');
+                    el.attr('aria-disabled', 'true');
+                    el.attr('tabindex', '-1');
+                } else {
+                    el.removeClass('disabled');
+                    el.removeAttr('aria-disabled');
+                    el.attr('tabindex', '0');
+                }
             }
         }
     });
@@ -983,6 +1012,13 @@ $.ui.position.fieldTip = {
         },
         _initOptionButton: function () {
             var self = this, o = self.options, el = self.element;
+            
+            // Add ARIA attributes for accessibility
+            el.attr('role', 'button');
+            el.attr('aria-pressed', 'false');
+            el.attr('tabindex', '0');
+            if (o.ariaLabel) el.attr('aria-label', o.ariaLabel);
+            
             let text = $('<span class="picButtonText"></span>');
             var toggle = $('<div class="picOptionToggle"></div>');
             toggle.appendTo(el);
@@ -996,6 +1032,7 @@ $.ui.position.fieldTip = {
             if (o.text) text.text(o.text);
             if (o.bind) el.attr('data-bind', o.bind);
             if (o.dropdownButton) o.dropdownButton.appendTo(el);
+            
             el.on('click', function (e) {
                 if (el.hasClass('disabled')) {
                     e.stopImmediatePropagation();
@@ -1003,9 +1040,23 @@ $.ui.position.fieldTip = {
                 }
                 el.find('div.picIndicator').each(function () {
                     var v = makeBool($(this).attr('data-status'));
-                    $(this).attr('data-status', !v);
+                    var newVal = !v;
+                    $(this).attr('data-status', newVal);
+                    // Update ARIA state
+                    el.attr('aria-pressed', newVal.toString());
                 });
             });
+            
+            // Add keyboard event handlers
+            el.on('keydown', function (evt) {
+                if (evt.which === 13 || evt.which === 32) { // Enter or Space
+                    evt.preventDefault();
+                    if (!el.hasClass('disabled')) {
+                        el.trigger('click');
+                    }
+                }
+            });
+            
             if (typeof o.style === 'object') el.css(o.style);
         },
         buttonText: function (val) {
@@ -1024,18 +1075,28 @@ $.ui.position.fieldTip = {
         },
         val: function (val) {
             var self = this, o = self.options, el = self.element;
-            if (typeof val !== 'undefined')
+            if (typeof val !== 'undefined') {
                 el.find('div.picIndicator').attr('data-status', val);
-            else
+                // Update ARIA state
+                el.attr('aria-pressed', makeBool(val).toString());
+            } else {
                 return el.find('div.picIndicator').attr('data-status');
+            }
         },
         disabled: function (val) {
             var self = this, o = self.options, el = self.element;
             if (typeof val === 'undefined')
                 return el.hasClass('disabled');
             else {
-                if (val) el.addClass('disabled');
-                else el.removeClass('disabled');
+                if (val) {
+                    el.addClass('disabled');
+                    el.attr('aria-disabled', 'true');
+                    el.attr('tabindex', '-1');
+                } else {
+                    el.removeClass('disabled');
+                    el.removeAttr('aria-disabled');
+                    el.attr('tabindex', '0');
+                }
             }
         }
     });
@@ -1084,23 +1145,91 @@ $.ui.position.fieldTip = {
             el[0].units = function (val) { return self.units(val); };
             el[0].disabled = function (val) { return self.disabled(val); };
             if (o.required === true) self.required(true);
-            //$('<label class="picSpinner-label"></label><div class="picSpinner-down fld-btn-left"><i class="fas fa-minus"></i></div><div class="picSpinner-value fld-value-center"></div><div class="picSpinner-up fld-btn-right"><i class="fas fa-plus"></i></div><span class="picSpinner-units picUnits"></span>').appendTo(el);
-            $('<label></label>').addClass('picSpinner-label').appendTo(el);
-            $('<div></div>').addClass('picSpinner-down').addClass('fld-btn-left').appendTo(el).append($('<i class="fas fa-minus"></i>'));
+            
+            // Create accessible label with unique ID
+            var labelId = 'spinner-label-' + _uniqueId++;
+            var spinnerId = 'spinner-' + _uniqueId++;
+            $('<label></label>').addClass('picSpinner-label').attr('id', labelId).appendTo(el);
+            
+            // Create decrement button with ARIA attributes
+            $('<div></div>').addClass('picSpinner-down').addClass('fld-btn-left')
+                .attr('role', 'button')
+                .attr('tabindex', '0')
+                .attr('aria-label', 'Decrease value')
+                .appendTo(el).append($('<i class="fas fa-minus"></i>'));
+            
             if (o.canEdit) {
-                $('<div></div>').addClass('picSpinner-value').addClass('fld-value-center').attr('contenteditable', true).appendTo(el)
+                $('<div></div>').addClass('picSpinner-value').addClass('fld-value-center')
+                    .attr('contenteditable', true)
+                    .attr('role', 'spinbutton')
+                    .attr('id', spinnerId)
+                    .attr('aria-labelledby', labelId)
+                    .attr('aria-valuenow', o.val || o.min)
+                    .attr('aria-valuemin', o.min)
+                    .attr('aria-valuemax', o.max)
+                    .attr('tabindex', '0')
+                    .appendTo(el)
                     .on('focusout', function (evt) {
                         var v = o.val;
                         var val = Number($(evt.target).text().replace(/[^0-9\.\-]+/g, ''));
                         if (isNaN(val)) self.val(o.min);
                         else self.val(val);
                         if (v !== o.val) self._fireValueChanged();
+                    })
+                    .on('keydown', function (evt) {
+                        switch (evt.which) {
+                            case 38: // Up arrow
+                                evt.preventDefault();
+                                self.increment();
+                                self._fireValueChanged();
+                                break;
+                            case 40: // Down arrow
+                                evt.preventDefault();
+                                self.decrement();
+                                self._fireValueChanged();
+                                break;
+                            case 13: // Enter
+                            case 32: // Space
+                                evt.preventDefault();
+                                $(evt.target).blur();
+                                break;
+                        }
                     });
             }
             else {
-                $('<div></div>').addClass('picSpinner-value').addClass('fld-value-center').appendTo(el);
+                $('<div></div>').addClass('picSpinner-value').addClass('fld-value-center')
+                    .attr('role', 'spinbutton')
+                    .attr('id', spinnerId)
+                    .attr('aria-labelledby', labelId)
+                    .attr('aria-valuenow', o.val || o.min)
+                    .attr('aria-valuemin', o.min)
+                    .attr('aria-valuemax', o.max)
+                    .attr('aria-readonly', 'true')
+                    .attr('tabindex', '0')
+                    .appendTo(el)
+                    .on('keydown', function (evt) {
+                        switch (evt.which) {
+                            case 38: // Up arrow
+                                evt.preventDefault();
+                                self.increment();
+                                self._fireValueChanged();
+                                break;
+                            case 40: // Down arrow
+                                evt.preventDefault();
+                                self.decrement();
+                                self._fireValueChanged();
+                                break;
+                        }
+                    });
             }
-            $('<div></div>').addClass('picSpinner-up').addClass('fld-btn-right').appendTo(el).append($('<i class="fas fa-plus"></i>'));
+            
+            // Create increment button with ARIA attributes
+            $('<div></div>').addClass('picSpinner-up').addClass('fld-btn-right')
+                .attr('role', 'button')
+                .attr('tabindex', '0')
+                .attr('aria-label', 'Increase value')
+                .appendTo(el).append($('<i class="fas fa-plus"></i>'));
+            
             $('<span></span>').addClass('picSpinner-units').addClass('picUnits').attr('data-bind', o.unitsBinding).appendTo(el);
 
             if (typeof o.min === 'undefined' || o.min === null) o.min = 0;
@@ -1111,6 +1240,7 @@ $.ui.position.fieldTip = {
             if (typeof o.value !== 'undefined') self.val(o.value);
             if (typeof o.binding !== 'undefined') el.attr('data-bind', o.binding);
             if (o.labelText) el.find('label.picSpinner-label:first').html(o.labelText);
+            // Mouse/touch events for buttons
             el.on('mousedown touchstart', 'div.picSpinner-down', function (evt) {
                 if (!el.hasClass('disabled')) self._rampDecrement();
                 evt.preventDefault();
@@ -1120,6 +1250,26 @@ $.ui.position.fieldTip = {
                 if (!el.hasClass('disabled')) self._rampIncrement();
                 evt.preventDefault();
                 evt.stopPropagation();
+            });
+            
+            // Keyboard events for buttons
+            el.on('keydown', 'div.picSpinner-down', function (evt) {
+                if (evt.which === 13 || evt.which === 32) { // Enter or Space
+                    evt.preventDefault();
+                    if (!el.hasClass('disabled')) {
+                        self.decrement();
+                        self._fireValueChanged();
+                    }
+                }
+            });
+            el.on('keydown', 'div.picSpinner-up', function (evt) {
+                if (evt.which === 13 || evt.which === 32) { // Enter or Space
+                    evt.preventDefault();
+                    if (!el.hasClass('disabled')) {
+                        self.increment();
+                        self._fireValueChanged();
+                    }
+                }
             });
             el.on('mouseup touchend', 'div.picSpinner-up, div.picSpinner-down', function (evt) {
                 o.ramps = 0;
@@ -1181,7 +1331,9 @@ $.ui.position.fieldTip = {
         increment: function () {
             var self = this, o = self.options, el = self.element;
             o.val = Math.min(o.max, o.val + o.step);
-            el.find('div.picSpinner-value').text(o.val.format(o.fmtMask, o.fmtEmpty));
+            var valueEl = el.find('div.picSpinner-value');
+            valueEl.text(o.val.format(o.fmtMask, o.fmtEmpty));
+            valueEl.attr('aria-valuenow', o.val);
             o.lastChange = new Date().getTime();
             return o.val;
         },
@@ -1194,7 +1346,9 @@ $.ui.position.fieldTip = {
             var txt = o.val.format(o.fmtMask, o.fmtEmpty);
             if (txt === 'NaN') console.log({ msg: 'Got a NaN value from the format', val: o.val, min: o.min, step: o.step });
 
-            el.find('div.picSpinner-value').text(txt);
+            var valueEl = el.find('div.picSpinner-value');
+            valueEl.text(txt);
+            valueEl.attr('aria-valuenow', o.val);
             o.lastChange = new Date().getTime();
             return o.val;
         },
@@ -1211,12 +1365,14 @@ $.ui.position.fieldTip = {
             var self = this, o = self.options, el = self.element;
             if (typeof val === 'undefined') return o.min;
             o.min = val;
+            el.find('div.picSpinner-value').attr('aria-valuemin', o.min);
             if (o.val < o.min) self.val(o.min);
         },
         maxVal: function (val) {
             var self = this, o = self.options, el = self.element;
             if (typeof val === 'undefined') return o.max;
             o.max = val;
+            el.find('div.picSpinner-value').attr('aria-valuemax', o.max);
             if (o.val > o.max) self.val(o.max);
         },
         val: function (val) {
@@ -1227,7 +1383,10 @@ $.ui.position.fieldTip = {
             o.val = Math.min(Math.max(o.min, val), o.max);
             let fld = el.find('div.picSpinner-value');
             // Only set the value back if we are not editing it.
-            if (fld[0] !== document.activeElement) fld.text(o.val.format(o.fmtMask, o.fmtEmpty));
+            if (fld[0] !== document.activeElement) {
+                fld.text(o.val.format(o.fmtMask, o.fmtEmpty));
+                fld.attr('aria-valuenow', o.val);
+            }
         },
         units: function (val) {
             var self = this, o = self.options, el = self.element;
@@ -2041,7 +2200,15 @@ $.ui.position.fieldTip = {
         required: function (val) {
             var self = this, o = self.options, el = self.element;
             if (typeof val === 'undefined') return makeBool(el.attr('data-required'));
-            else el.attr('data-required', makeBool(val));
+            else {
+                el.attr('data-required', makeBool(val));
+                var input = el.find('.picInputField-value:first');
+                if (makeBool(val)) {
+                    input.attr('aria-required', 'true');
+                } else {
+                    input.removeAttr('aria-required');
+                }
+            }
         },
         isEmpty: function () {
             var self = this, o = self.options, el = self.element;

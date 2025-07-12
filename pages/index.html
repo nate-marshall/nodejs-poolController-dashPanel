@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="utf-8" />
@@ -27,6 +27,7 @@
     <script type="text/javascript" src="jquery-ui/jquery-ui.js"></script>
     <script type="text/javascript" src="jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
     <script type="text/javascript" src="scripts/widgets.js"></script>
+    <script type="text/javascript" src="scripts/accessibility.js"></script>
     <script type="text/javascript" src="scripts/controller.js"></script>
     <script type="text/javascript" src="scripts/dashboard.js"></script>
     <script type="text/javascript" src="scripts/bodies.js"></script>
@@ -57,6 +58,12 @@
     <link id="cssref_config" rel="stylesheet" type="text/css" href="themes/configPage.css" />
     <link id="cssref_dash" rel="stylesheet" type="text/css" href="themes/dashboard.css" />
     
+    <!-- Modern Design System Integration -->
+    <link rel="stylesheet" type="text/css" href="themes/modern-design-system.css" />
+    <link rel="stylesheet" type="text/css" href="themes/modern-components.css" />
+    <link rel="stylesheet" type="text/css" href="themes/modern-layouts.css" />
+    <link rel="stylesheet" type="text/css" href="themes/responsive-framework.css" />
+    
     <!-- Next Theme System -->
     <link rel="stylesheet" type="text/css" href="themes/next-theme-banner.css" />
     <script type="text/javascript" src="themes/next/next-theme.js"></script>
@@ -78,27 +85,66 @@
 </head>
 
 <body>
+    <!-- Skip Navigation Link -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
     <div class="dashOuter picDashboard" data-panel="dashboard">
-        <header class="picHeader">
-            <div class="picController picControlPanel control-panel" style="display:block;"></div>
-        </header>
-        <div class="dashContainer">
-            <div class="container1">
-                <div class="picBodies picControlPanel control-panel"></div>
-                <div class="picChemistry picControlPanel control-panel"></div>
-                <div class="picPumps picControlPanel picPumpContainer control-panel"></div>
-                <div class="picSchedules picControlPanel picScheduleContainer control-panel"></div>
-                <div class="picCircuits picControlPanel control-panel"></div>
-                <div class="picLights picControlPanel control-panel"></div>
-                <div class="picFilters picControlPanel control-panel"></div>
-                <div class="picVirtualCircuits picControlPanel control-panel"></div>
+        <header class="picHeader" role="banner">
+            <h1 class="sr-only">Pool Controller Dashboard</h1>
+            <div class="picController picControlPanel control-panel" style="display:block;" role="region" aria-labelledby="controller-heading">
+                <h2 id="controller-heading" class="sr-only">Controller Status</h2>
             </div>
-            <div class="container2"></div>
-            <div class="container3"></div>
-
-        </div>
-        <div class="configContainer">
-        </div>
+        </header>
+        
+        <main id="main-content" class="dashContainer" role="main" aria-label="Pool Control Panels">
+            <section class="container1" aria-labelledby="control-panels-heading">
+                <h2 id="control-panels-heading" class="sr-only">Pool Equipment Control Panels</h2>
+                
+                <section class="picBodies picControlPanel control-panel" role="region" aria-labelledby="bodies-heading">
+                    <h3 id="bodies-heading" class="sr-only">Pool Bodies Control</h3>
+                </section>
+                
+                <section class="picChemistry picControlPanel control-panel" role="region" aria-labelledby="chemistry-heading">
+                    <h3 id="chemistry-heading" class="sr-only">Chemical Control</h3>
+                </section>
+                
+                <section class="picPumps picControlPanel picPumpContainer control-panel" role="region" aria-labelledby="pumps-heading">
+                    <h3 id="pumps-heading" class="sr-only">Pump Control</h3>
+                </section>
+                
+                <section class="picSchedules picControlPanel picScheduleContainer control-panel" role="region" aria-labelledby="schedules-heading">
+                    <h3 id="schedules-heading" class="sr-only">Schedule Control</h3>
+                </section>
+                
+                <section class="picCircuits picControlPanel control-panel" role="region" aria-labelledby="circuits-heading">
+                    <h3 id="circuits-heading" class="sr-only">Circuit Control</h3>
+                </section>
+                
+                <section class="picLights picControlPanel control-panel" role="region" aria-labelledby="lights-heading">
+                    <h3 id="lights-heading" class="sr-only">Light Control</h3>
+                </section>
+                
+                <section class="picFilters picControlPanel control-panel" role="region" aria-labelledby="filters-heading">
+                    <h3 id="filters-heading" class="sr-only">Filter Control</h3>
+                </section>
+                
+                <section class="picVirtualCircuits picControlPanel control-panel" role="region" aria-labelledby="virtual-circuits-heading">
+                    <h3 id="virtual-circuits-heading" class="sr-only">Virtual Circuit Control</h3>
+                </section>
+            </section>
+            
+            <section class="container2" aria-labelledby="secondary-controls-heading">
+                <h2 id="secondary-controls-heading" class="sr-only">Secondary Controls</h2>
+            </section>
+            
+            <section class="container3" aria-labelledby="tertiary-controls-heading">
+                <h2 id="tertiary-controls-heading" class="sr-only">Additional Controls</h2>
+            </section>
+        </main>
+        
+        <aside class="configContainer" role="complementary" aria-labelledby="config-heading">
+            <h2 id="config-heading" class="sr-only">Configuration Panel</h2>
+        </aside>
     </div>
 
     <script type="text/javascript">

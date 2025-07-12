@@ -276,3 +276,13 @@ uploads/
 # SSL Certificates
 *.pem
 ssl/
+
+# Handoffs
+handoffs/
+
+# ROO CODE
+# Ignore Roo code files
+*.roo
+.roomodes
+.clinerules
+

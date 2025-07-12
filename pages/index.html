@@ -58,11 +58,90 @@
     <link id="cssref_config" rel="stylesheet" type="text/css" href="themes/configPage.css" />
     <link id="cssref_dash" rel="stylesheet" type="text/css" href="themes/dashboard.css" />
     
-    <!-- Modern Design System Integration -->
+    <!-- Modern Design System Integration - Phase 2 Implementation -->
     <link rel="stylesheet" type="text/css" href="themes/modern-design-system.css" />
     <link rel="stylesheet" type="text/css" href="themes/modern-components.css" />
     <link rel="stylesheet" type="text/css" href="themes/modern-layouts.css" />
     <link rel="stylesheet" type="text/css" href="themes/responsive-framework.css" />
+    
+    <!-- Legacy compatibility layer for smooth transition -->
+    <style>
+        /* Immediate accessibility improvements */
+        body.keyboard-navigation *:focus-visible {
+            outline: 2px solid var(--color-primary-500);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+        }
+        
+        /* Enhanced touch targets for mobile */
+        @media (pointer: coarse) {
+            .picSpinner-down,
+            .picSpinner-up,
+            .picActionButton,
+            .picOptionButton,
+            [role="button"] {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        
+        /* Apply design system colors to existing widgets */
+        .picControlPanel {
+            background: var(--bg-primary);
+            border: var(--panel-border);
+            border-radius: var(--panel-border-radius);
+            box-shadow: var(--panel-shadow);
+            padding: var(--panel-padding);
+            transition: all var(--duration-200) var(--ease-in-out);
+        }
+        
+        .picControlPanel:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+        
+        /* Modern button styling */
+        .picActionButton,
+        .picOptionButton {
+            background-color: var(--color-primary-600);
+            color: var(--color-neutral-0);
+            border: var(--border-width-1) solid var(--color-primary-600);
+            border-radius: var(--button-border-radius);
+            padding: var(--button-padding-y) var(--button-padding-x);
+            font-weight: var(--button-font-weight);
+            transition: var(--button-transition);
+            min-height: var(--button-height);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+        }
+        
+        .picActionButton:hover:not(.disabled),
+        .picOptionButton:hover:not(.disabled) {
+            background-color: var(--color-primary-700);
+            border-color: var(--color-primary-700);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Status indicators with multi-modal approach */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .status-dot {
+            width: var(--indicator-size);
+            height: var(--indicator-size);
+            border-radius: var(--indicator-border-radius);
+            box-shadow: var(--indicator-shadow);
+            flex-shrink: 0;
+        }
+    </style>
     
     <!-- Next Theme System -->
     <link rel="stylesheet" type="text/css" href="themes/next-theme-banner.css" />

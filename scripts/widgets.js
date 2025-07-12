@@ -937,11 +937,14 @@ $.ui.position.fieldTip = {
             var self = this, o = self.options, el = self.element;
             if (typeof o.id !== 'undefined') el.attr('id', o.id);
             
-            // Add ARIA attributes for accessibility
+            // Enhanced ARIA attributes for accessibility
             el.attr('role', 'button');
             el.attr('tabindex', '0');
             if (o.ariaLabel) el.attr('aria-label', o.ariaLabel);
             if (o.ariaDescribedBy) el.attr('aria-describedby', o.ariaDescribedBy);
+            
+            // Add modern design system classes
+            el.addClass('btn btn-primary');
             
             let icon = $('<span class="picButtonIcon"></span>');
             let text = $('<span class="picButtonText"></span>');
@@ -954,20 +957,38 @@ $.ui.position.fieldTip = {
             text.appendTo(el);
             if (o.icon) icon.html(o.icon);
             el.addClass('picActionButton');
-            el.addClass('btn');
             if (o.text) text.text(o.text);
             el[0].buttonText = function (val) { return self.buttonText(val); };
             if (o.bind) el.attr('data-bind', o.bind);
             el[0].buttonIcon = function (val) { return self.buttonIcon(val); };
             el[0].disabled = function (val) { return self.disabled(val); };
             
-            // Add keyboard event handlers
+            // Enhanced keyboard event handlers with better accessibility
             el.on('keydown', function (evt) {
                 if (evt.which === 13 || evt.which === 32) { // Enter or Space
                     evt.preventDefault();
                     if (!el.hasClass('disabled')) {
+                        // Add visual feedback for keyboard activation
+                        el.addClass('btn-active');
+                        setTimeout(() => el.removeClass('btn-active'), 150);
                         el.trigger('click');
+                        
+                        // Announce action to screen readers
+                        if (window.PoolAccessibility) {
+                            window.PoolAccessibility.announcer.announce('Button activated');
+                        }
                     }
+                }
+                // Add Escape key support for canceling focus
+                if (evt.which === 27) { // Escape
+                    el.blur();
+                }
+            });
+            
+            // Enhanced focus management
+            el.on('focus', function() {
+                if (window.PoolAccessibility) {
+                    $('body').addClass('keyboard-navigation');
                 }
             });
             
@@ -1006,26 +1027,38 @@ $.ui.position.fieldTip = {
             el[0].buttonText = function (val) { return self.buttonText(val); };
             el[0].isEmpty = function () { return self.isEmpty(); };
             el[0].required = function (val) { return self.required(val); };
-            if (o.required === true) self.required(true);
             el[0].disabled = function (val) { return self.disabled(val); };
+            el[0].validateField = function () { return self.validateField(); };
+            el[0].clearError = function () { return self.clearError(); };
+            if (o.required === true) self.required(true);
             self._initOptionButton();
         },
         _initOptionButton: function () {
             var self = this, o = self.options, el = self.element;
             
-            // Add ARIA attributes for accessibility
+            // Add modern design system classes
+            el.addClass('picOptionButton btn-toggle');
+            
+            // Create unique IDs for accessibility
+            var buttonId = 'option-button-' + _uniqueId++;
+            var labelId = 'option-label-' + _uniqueId++;
+            
+            // Enhanced ARIA attributes for accessibility
             el.attr('role', 'button');
             el.attr('aria-pressed', 'false');
             el.attr('tabindex', '0');
+            el.attr('id', buttonId);
             if (o.ariaLabel) el.attr('aria-label', o.ariaLabel);
+            if (o.ariaDescribedBy) el.attr('aria-describedby', o.ariaDescribedBy);
             
-            let text = $('<span class="picButtonText"></span>');
+            let text = $('<span class="picButtonText"></span>')
+                .attr('id', labelId)
+                .attr('aria-labelledby', buttonId);
             var toggle = $('<div class="picOptionToggle"></div>');
             toggle.appendTo(el);
             toggle.toggleButton();
             text.appendTo(el);
             if (o.icon) icon.html(o.icon);
-            el.addClass('picOptionButton');
             el.addClass('btn-border');
             if (typeof o.id !== 'undefined') el.prop('id', o.id);
             el.attr('data-datatype', 'boolean');
@@ -1044,16 +1077,37 @@ $.ui.position.fieldTip = {
                     $(this).attr('data-status', newVal);
                     // Update ARIA state
                     el.attr('aria-pressed', newVal.toString());
+                    
+                    // Announce state change to screen readers
+                    if (window.PoolAccessibility) {
+                        var stateText = newVal ? 'selected' : 'not selected';
+                        window.PoolAccessibility.announcer.announce('Option ' + stateText);
+                    }
                 });
+                self.validateField();
             });
             
-            // Add keyboard event handlers
+            // Enhanced keyboard event handlers
             el.on('keydown', function (evt) {
                 if (evt.which === 13 || evt.which === 32) { // Enter or Space
                     evt.preventDefault();
                     if (!el.hasClass('disabled')) {
+                        // Add visual feedback for keyboard activation
+                        el.addClass('btn-active');
+                        setTimeout(() => el.removeClass('btn-active'), 150);
                         el.trigger('click');
                     }
+                }
+                // Add Escape key support for canceling focus
+                if (evt.which === 27) { // Escape
+                    el.blur();
+                }
+            });
+            
+            // Enhanced focus management
+            el.on('focus', function() {
+                if (window.PoolAccessibility) {
+                    $('body').addClass('keyboard-navigation');
                 }
             });
             
@@ -1098,6 +1152,51 @@ $.ui.position.fieldTip = {
                     el.attr('tabindex', '0');
                 }
             }
+        },
+        validateField: function () {
+            var self = this, o = self.options, el = self.element;
+            self.clearError();
+            
+            var isValid = true;
+            var errorMessages = [];
+            
+            // Check if required field is empty
+            if (self.required() && self.isEmpty()) {
+                isValid = false;
+                errorMessages.push('This field is required');
+            }
+            
+            // Apply validation styling and ARIA attributes
+            if (!isValid) {
+                el.addClass('validation-error');
+                el.attr('aria-invalid', 'true');
+                
+                // Create error message for screen readers
+                var errorId = 'error-' + _uniqueId++;
+                var errorDiv = $('<div></div>')
+                    .attr('id', errorId)
+                    .addClass('validation-error-message')
+                    .attr('role', 'alert')
+                    .text(errorMessages.join('. '))
+                    .appendTo(el);
+                
+                el.attr('aria-describedby', errorId);
+                
+                // Announce error to screen readers
+                if (window.PoolAccessibility) {
+                    window.PoolAccessibility.announcer.announce('Validation error: ' + errorMessages.join('. '));
+                }
+            } else {
+                el.attr('aria-invalid', 'false');
+            }
+            
+            return isValid;
+        },
+        clearError: function () {
+            var self = this, o = self.options, el = self.element;
+            el.removeClass('validation-error');
+            el.find('.validation-error-message').remove();
+            el.removeAttr('aria-invalid aria-describedby');
         }
     });
     $.widget("pic.valueSpinner", {
@@ -1134,6 +1233,10 @@ $.ui.position.fieldTip = {
         _initValueSpinner: function () {
             var self = this, o = self.options, el = self.element;
             if (!el.hasClass) el.addClass('picSpinner');
+            
+            // Add modern design system classes
+            el.addClass('spinner');
+            
             el[0].increment = function () { return self.increment(); };
             el[0].decrement = function () { return self.decrement(); };
             el[0].val = function (val) { return self.val(val); };
@@ -1144,22 +1247,25 @@ $.ui.position.fieldTip = {
             el[0].maxVal = function (val) { return self.maxVal(val); };
             el[0].units = function (val) { return self.units(val); };
             el[0].disabled = function (val) { return self.disabled(val); };
+            el[0].validateField = function () { return self.validateField(); };
+            el[0].clearError = function () { return self.clearError(); };
             if (o.required === true) self.required(true);
             
             // Create accessible label with unique ID
             var labelId = 'spinner-label-' + _uniqueId++;
             var spinnerId = 'spinner-' + _uniqueId++;
-            $('<label></label>').addClass('picSpinner-label').attr('id', labelId).appendTo(el);
+            $('<label></label>').addClass('picSpinner-label form-label').attr('id', labelId).appendTo(el);
             
-            // Create decrement button with ARIA attributes
-            $('<div></div>').addClass('picSpinner-down').addClass('fld-btn-left')
+            // Create decrement button with enhanced ARIA attributes
+            $('<div></div>').addClass('picSpinner-down spinner-button').addClass('fld-btn-left')
                 .attr('role', 'button')
                 .attr('tabindex', '0')
                 .attr('aria-label', 'Decrease value')
+                .attr('aria-describedby', spinnerId)
                 .appendTo(el).append($('<i class="fas fa-minus"></i>'));
             
             if (o.canEdit) {
-                $('<div></div>').addClass('picSpinner-value').addClass('fld-value-center')
+                $('<div></div>').addClass('picSpinner-value spinner-input').addClass('fld-value-center')
                     .attr('contenteditable', true)
                     .attr('role', 'spinbutton')
                     .attr('id', spinnerId)
@@ -1167,6 +1273,7 @@ $.ui.position.fieldTip = {
                     .attr('aria-valuenow', o.val || o.min)
                     .attr('aria-valuemin', o.min)
                     .attr('aria-valuemax', o.max)
+                    .attr('aria-required', o.required ? 'true' : 'false')
                     .attr('tabindex', '0')
                     .appendTo(el)
                     .on('focusout', function (evt) {
@@ -1174,7 +1281,14 @@ $.ui.position.fieldTip = {
                         var val = Number($(evt.target).text().replace(/[^0-9\.\-]+/g, ''));
                         if (isNaN(val)) self.val(o.min);
                         else self.val(val);
-                        if (v !== o.val) self._fireValueChanged();
+                        if (v !== o.val) {
+                            self._fireValueChanged();
+                            // Announce value change to screen readers
+                            if (window.PoolAccessibility) {
+                                window.PoolAccessibility.announcer.announce(`Value changed to ${o.val}`);
+                            }
+                        }
+                        self.validateField();
                     })
                     .on('keydown', function (evt) {
                         switch (evt.which) {
@@ -1182,22 +1296,47 @@ $.ui.position.fieldTip = {
                                 evt.preventDefault();
                                 self.increment();
                                 self._fireValueChanged();
+                                if (window.PoolAccessibility) {
+                                    window.PoolAccessibility.announcer.announce(`Value increased to ${o.val}`);
+                                }
                                 break;
                             case 40: // Down arrow
                                 evt.preventDefault();
                                 self.decrement();
                                 self._fireValueChanged();
+                                if (window.PoolAccessibility) {
+                                    window.PoolAccessibility.announcer.announce(`Value decreased to ${o.val}`);
+                                }
                                 break;
                             case 13: // Enter
-                            case 32: // Space
                                 evt.preventDefault();
                                 $(evt.target).blur();
+                                break;
+                            case 27: // Escape
+                                evt.preventDefault();
+                                $(evt.target).blur();
+                                break;
+                            case 36: // Home
+                                evt.preventDefault();
+                                self.val(o.min);
+                                self._fireValueChanged();
+                                if (window.PoolAccessibility) {
+                                    window.PoolAccessibility.announcer.announce(`Value set to minimum: ${o.val}`);
+                                }
+                                break;
+                            case 35: // End
+                                evt.preventDefault();
+                                self.val(o.max);
+                                self._fireValueChanged();
+                                if (window.PoolAccessibility) {
+                                    window.PoolAccessibility.announcer.announce(`Value set to maximum: ${o.val}`);
+                                }
                                 break;
                         }
                     });
             }
             else {
-                $('<div></div>').addClass('picSpinner-value').addClass('fld-value-center')
+                $('<div></div>').addClass('picSpinner-value spinner-input').addClass('fld-value-center')
                     .attr('role', 'spinbutton')
                     .attr('id', spinnerId)
                     .attr('aria-labelledby', labelId)
@@ -1213,21 +1352,38 @@ $.ui.position.fieldTip = {
                                 evt.preventDefault();
                                 self.increment();
                                 self._fireValueChanged();
+                                if (window.PoolAccessibility) {
+                                    window.PoolAccessibility.announcer.announce(`Value increased to ${o.val}`);
+                                }
                                 break;
                             case 40: // Down arrow
                                 evt.preventDefault();
                                 self.decrement();
+                                self._fireValueChanged();
+                                if (window.PoolAccessibility) {
+                                    window.PoolAccessibility.announcer.announce(`Value decreased to ${o.val}`);
+                                }
+                                break;
+                            case 36: // Home
+                                evt.preventDefault();
+                                self.val(o.min);
+                                self._fireValueChanged();
+                                break;
+                            case 35: // End
+                                evt.preventDefault();
+                                self.val(o.max);
                                 self._fireValueChanged();
                                 break;
                         }
                     });
             }
             
-            // Create increment button with ARIA attributes
-            $('<div></div>').addClass('picSpinner-up').addClass('fld-btn-right')
+            // Create increment button with enhanced ARIA attributes
+            $('<div></div>').addClass('picSpinner-up spinner-button').addClass('fld-btn-right')
                 .attr('role', 'button')
                 .attr('tabindex', '0')
                 .attr('aria-label', 'Increase value')
+                .attr('aria-describedby', spinnerId)
                 .appendTo(el).append($('<i class="fas fa-plus"></i>'));
             
             $('<span></span>').addClass('picSpinner-units').addClass('picUnits').attr('data-bind', o.unitsBinding).appendTo(el);
@@ -1406,6 +1562,64 @@ $.ui.position.fieldTip = {
                 }
                 el.find('.picSpinner-value').attr('contenteditable', val || !o.canEdit ? false : true);
             }
+        },
+        validateField: function () {
+            var self = this, o = self.options, el = self.element;
+            self.clearError();
+            
+            var isValid = true;
+            var errorMessages = [];
+            
+            // Check if required field is empty
+            if (self.required() && self.isEmpty()) {
+                isValid = false;
+                errorMessages.push('This field is required');
+            }
+            
+            // Check min/max bounds
+            var val = self.val();
+            if (!isNaN(val)) {
+                if (val < o.min) {
+                    isValid = false;
+                    errorMessages.push('Value must be at least ' + o.min);
+                }
+                if (val > o.max) {
+                    isValid = false;
+                    errorMessages.push('Value must not exceed ' + o.max);
+                }
+            }
+            
+            // Apply validation styling and ARIA attributes
+            if (!isValid) {
+                el.addClass('validation-error');
+                el.find('.picSpinner-value').attr('aria-invalid', 'true');
+                
+                // Create error message for screen readers
+                var errorId = 'error-' + _uniqueId++;
+                var errorDiv = $('<div></div>')
+                    .attr('id', errorId)
+                    .addClass('validation-error-message')
+                    .attr('role', 'alert')
+                    .text(errorMessages.join('. '))
+                    .appendTo(el);
+                
+                el.find('.picSpinner-value').attr('aria-describedby', errorId);
+                
+                // Announce error to screen readers
+                if (window.PoolAccessibility) {
+                    window.PoolAccessibility.announcer.announce('Validation error: ' + errorMessages.join('. '));
+                }
+            } else {
+                el.find('.picSpinner-value').attr('aria-invalid', 'false');
+            }
+            
+            return isValid;
+        },
+        clearError: function () {
+            var self = this, o = self.options, el = self.element;
+            el.removeClass('validation-error');
+            el.find('.validation-error-message').remove();
+            el.find('.picSpinner-value').removeAttr('aria-invalid aria-describedby');
         }
 
     });
@@ -1947,15 +2161,60 @@ $.ui.position.fieldTip = {
         _initPickList: function () {
             var self = this, o = self.options, el = self.element;
             if (o.bind) el.attr('data-bind', o.bind);
-            $('<label class="picPickList-label field-label"></label>').appendTo(el).text(o.labelText);
+            
+            // Add modern design system classes
+            el.addClass('picPickList form-field dropdown');
+            
+            // Create accessible label with unique ID
+            var labelId = 'picklist-label-' + _uniqueId++;
+            var inputId = 'picklist-' + _uniqueId++;
+            var dropdownId = 'picklist-dropdown-' + _uniqueId++;
+            
+            var label = $('<label class="picPickList-label form-label"></label>')
+                .attr('id', labelId)
+                .attr('for', inputId)
+                .text(o.labelText)
+                .appendTo(el);
+            
             var itm = self._getItem(o.value);
-            if (o.canEdit)
-                $('<div class="picPickList-value fld-value-combo"><input type="text" class="picPickList-value"></input><div>').addClass('editable').appendTo(el);
-            else
-                $('<div class="picPickList-value fld-value-combo"></div>').appendTo(el).attr('data-placeholder', o.placeHolder);
+            var valueContainer;
+            
+            if (o.canEdit) {
+                valueContainer = $('<div class="picPickList-value fld-value-combo form-control"></div>').addClass('editable').appendTo(el);
+                var input = $('<input type="text" class="picPickList-value"></input>')
+                    .attr('id', inputId)
+                    .attr('aria-labelledby', labelId)
+                    .attr('aria-expanded', 'false')
+                    .attr('aria-haspopup', 'listbox')
+                    .attr('role', 'combobox')
+                    .appendTo(valueContainer);
+            } else {
+                valueContainer = $('<div class="picPickList-value fld-value-combo form-control"></div>')
+                    .attr('id', inputId)
+                    .attr('aria-labelledby', labelId)
+                    .attr('aria-expanded', 'false')
+                    .attr('aria-haspopup', 'listbox')
+                    .attr('role', 'combobox')
+                    .attr('tabindex', '0')
+                    .attr('data-placeholder', o.placeHolder)
+                    .appendTo(el);
+            }
+            
+            // Enhanced ARIA attributes
+            if (o.ariaLabel) valueContainer.attr('aria-label', o.ariaLabel);
+            if (o.ariaDescribedBy) valueContainer.attr('aria-describedby', o.ariaDescribedBy);
+            
             var col = self._getColumn(o.displayColumn);
             if (itm && col) self.text(itm[col.binding]);
-            $('<div class="picPickList-drop fld-btn-right"><i class="fas fa-caret-down"></i></div>').appendTo(el);
+            
+            var dropButton = $('<div class="picPickList-drop fld-btn-right dropdown-toggle"></div>')
+                .attr('role', 'button')
+                .attr('tabindex', '0')
+                .attr('aria-label', 'Open dropdown')
+                .attr('aria-expanded', 'false')
+                .appendTo(el);
+            $('<i class="fas fa-caret-down"></i>').appendTo(dropButton);
+            
             $('<span></span>').addClass('picSpinner-units').addClass('picUnits').attr('data-bind', o.unitsBinding).appendTo(el);
 
             el.attr('data-bind', o.binding);
@@ -1966,6 +2225,8 @@ $.ui.position.fieldTip = {
             el[0].disabled = function (val) { return self.disabled(val); };
             el[0].isEmpty = function () { return self.isEmpty(); };
             el[0].required = function (val) { return self.required(val); };
+            el[0].validateField = function () { return self.validateField(); };
+            el[0].clearError = function () { return self.clearError(); };
             el[0].items = function (val) { self.itemList(val); };
             el[0].placeHolder = function (val) { el.find('div.picPickList-value:first').attr('data-placeholder', val); };
             if (typeof o.id !== 'undefined') el.attr('id', o.id);
@@ -1980,20 +2241,60 @@ $.ui.position.fieldTip = {
                 evt.preventDefault();
                 if (div.length > 0) {
                     div.remove();
+                    el.find('.picPickList-value').attr('aria-expanded', 'false');
                     return;
                 }
                 else {
                     $('div.picPickList-options:first').remove();
-                    if (!el.hasClass('disabled'))
+                    if (!el.hasClass('disabled')) {
                         self._buildOptionList();
+                        el.find('.picPickList-value').attr('aria-expanded', 'true');
+                    }
                 }
             });
+            
+            // Enhanced keyboard support for dropdown button
+            el.find('div.picPickList-drop').on('keydown', function (evt) {
+                if (evt.which === 13 || evt.which === 32) { // Enter or Space
+                    evt.preventDefault();
+                    $(this).trigger('click');
+                }
+                if (evt.which === 27) { // Escape
+                    el.find('div.picPickList-options:first').remove();
+                    el.find('.picPickList-value').attr('aria-expanded', 'false');
+                    el.find('.picPickList-value').focus();
+                }
+            });
+            
+            // Enhanced keyboard support for combobox
+            el.on('keydown', '.picPickList-value', function (evt) {
+                if (evt.which === 40) { // Down arrow
+                    evt.preventDefault();
+                    if (el.find('div.picPickList-options:first').length === 0) {
+                        self._buildOptionList();
+                        el.find('.picPickList-value').attr('aria-expanded', 'true');
+                    }
+                }
+                if (evt.which === 27) { // Escape
+                    el.find('div.picPickList-options:first').remove();
+                    el.find('.picPickList-value').attr('aria-expanded', 'false');
+                }
+            });
+            
             el.find('div.picPickList-drop').on('mousedown touchstart', function (evt) {
                 evt.stopImmediatePropagation();
-               
             });
+            
             el.on('change', 'input.picPickList-value', function (evt) {
                 self.val(el.find('input.picPickList-value:first').val());
+                self.validateField();
+            });
+            
+            // Enhanced focus management
+            el.on('focus', '.picPickList-value', function() {
+                if (window.PoolAccessibility) {
+                    $('body').addClass('keyboard-navigation');
+                }
             });
         },
         _applyStyles: function () {
@@ -2276,6 +2577,51 @@ $.ui.position.fieldTip = {
                     return o.value;
                 }
             }
+        },
+        validateField: function () {
+            var self = this, o = self.options, el = self.element;
+            self.clearError();
+            
+            var isValid = true;
+            var errorMessages = [];
+            
+            // Check if required field is empty
+            if (self.required() && self.isEmpty()) {
+                isValid = false;
+                errorMessages.push('This field is required');
+            }
+            
+            // Apply validation styling and ARIA attributes
+            if (!isValid) {
+                el.addClass('validation-error');
+                el.find('.picPickList-value').attr('aria-invalid', 'true');
+                
+                // Create error message for screen readers
+                var errorId = 'error-' + _uniqueId++;
+                var errorDiv = $('<div></div>')
+                    .attr('id', errorId)
+                    .addClass('validation-error-message')
+                    .attr('role', 'alert')
+                    .text(errorMessages.join('. '))
+                    .appendTo(el);
+                
+                el.find('.picPickList-value').attr('aria-describedby', errorId);
+                
+                // Announce error to screen readers
+                if (window.PoolAccessibility) {
+                    window.PoolAccessibility.announcer.announce('Validation error: ' + errorMessages.join('. '));
+                }
+            } else {
+                el.find('.picPickList-value').attr('aria-invalid', 'false');
+            }
+            
+            return isValid;
+        },
+        clearError: function () {
+            var self = this, o = self.options, el = self.element;
+            el.removeClass('validation-error');
+            el.find('.validation-error-message').remove();
+            el.find('.picPickList-value').removeAttr('aria-invalid aria-describedby');
         }
     });
     $.widget("pic.inputField", {
@@ -2291,14 +2637,41 @@ $.ui.position.fieldTip = {
             var self = this, o = self.options, el = self.element;
             //el[0].val = function (val) { return self.val(val); };
             if (o.bind) el.attr('data-bind', o.bind);
-            el.addClass('picInputField');
-            $('<label></label>').appendTo(el).text(o.labelText);
+            
+            // Add modern design system classes
+            el.addClass('picInputField form-field');
+            
+            // Create accessible label with unique ID
+            var labelId = 'input-label-' + _uniqueId++;
+            var inputId = 'input-' + _uniqueId++;
+            var label = $('<label></label>')
+                .addClass('form-label')
+                .attr('id', labelId)
+                .attr('for', inputId)
+                .text(o.labelText)
+                .appendTo(el);
+            
+            var input;
             if (o.multiLine) {
                 el.addClass('multiline');
-                $('<textarea class="picInputField-value"></textarea>').addClass('fld-value').appendTo(el);
+                input = $('<textarea class="picInputField-value form-control"></textarea>')
+                    .addClass('fld-value')
+                    .attr('id', inputId)
+                    .attr('aria-labelledby', labelId)
+                    .appendTo(el);
             }
-            else
-                $('<input type="text" class="picInputField-value"></input>').addClass('fld-value').appendTo(el);
+            else {
+                input = $('<input type="text" class="picInputField-value form-control"></input>')
+                    .addClass('fld-value')
+                    .attr('id', inputId)
+                    .attr('aria-labelledby', labelId)
+                    .appendTo(el);
+            }
+            
+            // Enhanced ARIA attributes for accessibility
+            if (o.ariaLabel) input.attr('aria-label', o.ariaLabel);
+            if (o.ariaDescribedBy) input.attr('aria-describedby', o.ariaDescribedBy);
+            if (o.placeholder) input.attr('placeholder', o.placeholder);
             
             self.val(o.value);
             el.attr('data-bind', o.binding);
@@ -2306,6 +2679,7 @@ $.ui.position.fieldTip = {
             el.attr('data-fmtmask', o.fmtMask);
             el.attr('data-emptyMask', o.emptyMask);
             self._applyStyles();
+            
             el[0].label = function () { return el.find('label:first'); };
             el[0].field = function () { return el.find('.picInputField-value:first'); };
             el[0].text = function (text) { return self.text(text); };
@@ -2313,8 +2687,36 @@ $.ui.position.fieldTip = {
             el[0].disabled = function (val) { return self.disabled(val); };
             el[0].isEmpty = function () { return self.isEmpty(); };
             el[0].required = function (val) { return self.required(val); };
+            el[0].validateField = function () { return self.validateField(); };
+            el[0].clearError = function () { return self.clearError(); };
+            
             if (o.required === true) self.required(true);
-            el.on('change', '.picInputField-value', function (evt) { self.formatField(); });
+            
+            // Enhanced event handlers with validation
+            el.on('change', '.picInputField-value', function (evt) {
+                self.formatField();
+                self.validateField();
+            });
+            
+            // Add blur validation
+            el.on('blur', '.picInputField-value', function (evt) {
+                self.validateField();
+            });
+            
+            // Enhanced keyboard support
+            el.on('keydown', '.picInputField-value', function (evt) {
+                if (evt.which === 27) { // Escape
+                    evt.preventDefault();
+                    $(evt.target).blur();
+                }
+            });
+            
+            // Enhanced focus management
+            el.on('focus', '.picInputField-value', function() {
+                if (window.PoolAccessibility) {
+                    $('body').addClass('keyboard-navigation');
+                }
+            });
         },
         _applyStyles: function () {
             var self = this, o = self.options, el = self.element;
@@ -2400,6 +2802,63 @@ $.ui.position.fieldTip = {
                     fld.removeAttr('disabled');
                 }
             }
+        },
+        validateField: function () {
+            var self = this, o = self.options, el = self.element;
+            self.clearError();
+            
+            var isValid = true;
+            var errorMessages = [];
+            
+            // Check if required field is empty
+            if (self.required() && self.isEmpty()) {
+                isValid = false;
+                errorMessages.push('This field is required');
+            }
+            
+            // Additional validation based on data type
+            var dataType = el.attr('data-datatype') || 'string';
+            var val = self.val();
+            
+            if (!self.isEmpty() && dataType !== 'string') {
+                var parsedVal = dataBinder.parseValue(val, dataType);
+                if (typeof parsedVal === 'undefined' || isNaN(parsedVal)) {
+                    isValid = false;
+                    errorMessages.push('Invalid format for ' + dataType);
+                }
+            }
+            
+            // Apply validation styling and ARIA attributes
+            if (!isValid) {
+                el.addClass('validation-error');
+                el.find('.picInputField-value').attr('aria-invalid', 'true');
+                
+                // Create error message for screen readers
+                var errorId = 'error-' + _uniqueId++;
+                var errorDiv = $('<div></div>')
+                    .attr('id', errorId)
+                    .addClass('validation-error-message')
+                    .attr('role', 'alert')
+                    .text(errorMessages.join('. '))
+                    .appendTo(el);
+                
+                el.find('.picInputField-value').attr('aria-describedby', errorId);
+                
+                // Announce error to screen readers
+                if (window.PoolAccessibility) {
+                    window.PoolAccessibility.announcer.announce('Validation error: ' + errorMessages.join('. '));
+                }
+            } else {
+                el.find('.picInputField-value').attr('aria-invalid', 'false');
+            }
+            
+            return isValid;
+        },
+        clearError: function () {
+            var self = this, o = self.options, el = self.element;
+            el.removeClass('validation-error');
+            el.find('.validation-error-message').remove();
+            el.find('.picInputField-value').removeAttr('aria-invalid aria-describedby');
         }
     });
     $.widget("pic.staticField", {
